@@ -1,4 +1,5 @@
 from stocktool import stocktool
+import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
@@ -8,9 +9,9 @@ if __name__ == "__main__":
 
 	stock = stocktool(name, start, end)
 	stock.plot_stock()
-	stock.plot_stock(stats=['Daily Change'])
-	model, model_data = stock.create_prophet_model(days=90)
+	# stock.plot_stock(stats=['Daily Change'])
+	# model, model_data = stock.create_prophet_model(days=90)
 
-	stock.evaluate_prediction()
+	# stock.evaluate_prediction()
 
 

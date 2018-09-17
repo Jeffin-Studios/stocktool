@@ -1,58 +1,89 @@
-from pandas_datareader import data
-import matplotlib.pyplot as plt
+# Machine learning classification libraries
+from sklearn.svm import SVC
+from sklearn.metrics import scorer
+from sklearn.metrics import accuracy_score
+ 
+# For data manipulation
 import pandas as pd
+import numpy as np
+ 
+# To plot
+import matplotlib.pyplot as plt
+import seaborn
+ 
+# To fetch data
+from pandas_datareader import data as pdr
 
-# We would like all available data from 01/01/2000 until 12/31/2016.
-name = 'AAPL'
-start="2015-01-01"
-end="2018-9-14"
 
-tickers = ['AAPL', 'MSFT', '^GSPC']
 
-# User pandas_reader.data.DataReader to load the desired data. As simple as that.
-stock = data.DataReader(tickers, 'yahoo', start, end)
-# view it
-# stock.to_frame().head(9)
+Df = pdr.DataReader('SPY', 'yahoo', start="2012-01-01", end="2017-10-01")        
+Df= Df.dropna()
+Df.Close.plot(figsize=(10,5))
+plt.ylabel("S&P500 Price")
+plt.show()
 
-# Getting just the adjusted closing prices. This will return a Pandas DataFrame
-# The index in this DataFrame is the major index of the stock.
-close = stock['Close']
 
-# Getting all weekdays between 01/01/2000 and 12/31/2016
-all_weekdays = pd.date_range(start=start, end=end, freq='B')
 
-# How do we align the existing prices in adj_close with our new set of dates?
-# All we need to do is reindex close using all_weekdays as the new index
-close = close.reindex(all_weekdays)
+y = np.where(Df['Close'].shift(-1) > Df['Close'],1,-1)
 
-# Reindexing will insert missing values (NaN) for the dates that were not present
-# in the original set. To cope with this, we can fill the missing by replacing them
-# with the latest available price for each instrument.
-close = close.fillna(method='ffill')
 
-print(all_weekdays)
 
-close.head(10)
+Df['Open-Close'] = Df.Open - Df.Close
+Df['High-Low'] = Df.High - Df.Low
+ 
+X=Df[['Open-Close','High-Low']]
 
-close.describe()
 
-# Get the MSFT timeseries. This now returns a Pandas Series object indexed by date.
-msft = close.loc[:, 'MSFT']
 
-# Calculate the 20 and 100 days moving averages of the closing prices
-short_rolling_msft = msft.rolling(window=20).mean()
-long_rolling_msft = msft.rolling(window=100).mean()
+split_percentage = 0.8
+split = int(split_percentage*len(Df))
+ 
+# Train data set
+X_train = X[:split]
+y_train = y[:split]
+ 
+# Test data set
+X_test = X[split:]
+y_test = y[split:]
 
-# Plot everything by leveraging the very powerful matplotlib package
-fig, ax = plt.subplots(figsize=(16,9))
 
-ax.plot(msft.index, msft, label='MSFT')
-ax.plot(short_rolling_msft.index, short_rolling_msft, label='20 days rolling')
-ax.plot(long_rolling_msft.index, long_rolling_msft, label='100 days rolling')
 
-ax.set_xlabel('Date')
-ax.set_ylabel('Adjusted closing price ($)')
-ax.legend()
+cls = SVC().fit(X_train, y_train)
 
+
+
+
+accuracy_train = accuracy_score(y_train, cls.predict(X_train))
+ 
+accuracy_test = accuracy_score(y_test, cls.predict(X_test))
+print('\nTrain Accuracy:{: .2f}%'.format(accuracy_train*100))
+print('Test Accuracy:{: .2f}%'.format(accuracy_test*100))
+
+
+
+
+Df['Predicted_Signal'] = cls.predict(X)
+
+count1 = 0
+count2 = 0
+change = []
+for date, signal in Df['Predicted_Signal'].items():
+	if signal == 0:
+		count0 +=1
+	elif signal ==1:
+		count1 +=1
+	else:
+		count2 +=1
+		change.append(date)
+
+# print(count1)
+print(change)
+# print(count2)
+
+# Calculate log returns
+Df['Return'] = np.log(Df.Close.shift(-1) / Df.Close)*100
+Df['Strategy_Return'] = Df.Return * Df.Predicted_Signal
+Df.Strategy_Return.iloc[split:].cumsum().plot(figsize=(10,5))
+plt.ylabel("Strategy Returns (%)")
 plt.show()
 

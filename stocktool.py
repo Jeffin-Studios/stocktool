@@ -58,7 +58,6 @@ class stocktool():
         # Minimum and maximum date in range
         self.min_date = min(stock['Date'])
         self.max_date = max(stock['Date'])
-        print("BIIIITTTTVCCCCHHH")
         print (self.min_date)
         
         # Find max and min prices and dates on which they occurred
