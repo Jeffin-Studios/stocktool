@@ -16,7 +16,7 @@ from pandas_datareader import data as pdr
 
 
 
-Df = pdr.DataReader('SPY', 'yahoo', start="2012-01-01", end="2017-10-01")        
+Df = pdr.DataReader('CRON', 'yahoo', start="2018-01-01", end="2018-10-01")        
 Df= Df.dropna()
 Df.Close.plot(figsize=(10,5))
 plt.ylabel("S&P500 Price")

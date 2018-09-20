@@ -1,13 +1,16 @@
+
+#rolling average for both stock and market
+
+
 from pandas_datareader import data
 import matplotlib.pyplot as plt
 import pandas as pd
 
 # We would like all available data from 01/01/2000 until 12/31/2016.
-name = 'AAPL'
-start="2015-01-01"
-end="2018-9-14"
+start="2017-01-01"
+end="2018-9-19"
 
-tickers = ['AAPL', 'MSFT', '^GSPC']
+tickers = ['CRON', 'CELG']
 
 # User pandas_reader.data.DataReader to load the desired data. As simple as that.
 stock = data.DataReader(tickers, 'yahoo', start, end)
@@ -37,17 +40,19 @@ close.head(10)
 close.describe()
 
 # Get the MSFT timeseries. This now returns a Pandas Series object indexed by date.
-msft = close.loc[:, 'MSFT']
+msft = close.loc[:, 'CELG']
 
 # Calculate the 20 and 100 days moving averages of the closing prices
 short_rolling_msft = msft.rolling(window=20).mean()
+medium_rolling_msft = msft.rolling(window=60).mean()
 long_rolling_msft = msft.rolling(window=100).mean()
 
 # Plot everything by leveraging the very powerful matplotlib package
 fig, ax = plt.subplots(figsize=(16,9))
 
-ax.plot(msft.index, msft, label='MSFT')
+ax.plot(msft.index, msft, label='CELG')
 ax.plot(short_rolling_msft.index, short_rolling_msft, label='20 days rolling')
+ax.plot(long_rolling_msft.index, medium_rolling_msft, label='60 days rolling')
 ax.plot(long_rolling_msft.index, long_rolling_msft, label='100 days rolling')
 
 ax.set_xlabel('Date')

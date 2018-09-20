@@ -4,6 +4,7 @@ Identify Interesting Stocks
 2. Assess volatility by analyzing stock history (this is also one of the search parameters)
 3. Determine overall trends for daily, weekly, and monthly. Look at rolling averages (trend.py), sample multiple intervals to reduce local noise
 4. From there, determine if stock is at relative peak or relative dip (daily, weekly, monthly)
+5. Also assess long term trend for specific industry market of stock
 
 
 

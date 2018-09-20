@@ -486,12 +486,12 @@ class stocktool():
         return model, future
       
     # Evaluate prediction model for one year
-    def evaluate_prediction(self, start_date=None, end_date=None, nshares = None):
+    def evaluate_prediction(self, start_date=None, end_date=None, nshares = None, months = 6):
         
         # Default start date is one year before end of data
         # Default end date is end date of data
         if start_date is None:
-            start_date = self.max_date - pd.DateOffset(years=1)
+            start_date = self.max_date - pd.DateOffset(months = months)
             if start_date < self.min_date:
                 start_date = self.min_date + 0.5*(self.max_date-self.min_date)
         if end_date is None:
@@ -984,3 +984,18 @@ class stocktool():
         plt.xticks(results['cps'], results['cps'])
         plt.legend(prop={'size':10})
         plt.show();
+
+
+if __name__ == "__main__":
+    name = 'AMD'
+    start="2015-01-01"
+    # start="2018-09-01"
+    end="2018-9-20"
+
+    stock = stocktool(name, start, end)
+    # stock.plot_stock()
+    # stock.plot_stock(stats=['Daily Change'])
+    model, model_data = stock.create_prophet_model(days=30)
+
+    stock.evaluate_prediction()
+
