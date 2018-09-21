@@ -44,9 +44,7 @@ def fluctuation(name, start, end, graph = False):
 	change = short_rolling_stock - medium_rolling_stock
 	# Starts climbing when short term average passes long term average
 	# Starts dipping when short term average goes below long term average
-	buy_dates = []
-	sell_dates = []
-
+	### Code determines if change is at a zero, evaluates slope of the change, to see if its climbing or dipping, also concavity to make sure. 
 	if (graph):
 		fig, ax = plt.subplots(figsize=(16,9))
 		ax.plot(change.index, change, label="change")
@@ -57,7 +55,7 @@ def fluctuation(name, start, end, graph = False):
 		plt.grid()
 		plt.show()
 
-	return (buy_dates, sell_dates)
+	# return status
 
 def get_rsi(prices, n=14):
     deltas = np.diff(prices)
@@ -87,14 +85,16 @@ def get_rsi(prices, n=14):
     return rsi
 
 
+
 if __name__ == "__main__":
 	start="2015-01-01"
 	end="2018-9-20"
 	stocks = ['CRON', 'AMD']
+	fluctuation(stocks[1], start, end, graph=True)
+	# (close_price, short_rolling_stock, medium_rolling_stock) = rollingAverage(stocks[1], start, end)
+	# rsi = get_rsi(close_price)
+	# print(rsi[-1])
 
-	(close_price, short_rolling_stock, medium_rolling_stock) = rollingAverage(stocks[1], start, end)
-	rsi = get_rsi(close_price)
-	print(rsi[-1])
 
 
 
