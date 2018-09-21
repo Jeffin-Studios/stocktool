@@ -210,10 +210,10 @@ def graphData(name, start, end):
 
 
 if __name__ == "__main__":
-    stocks = ['CRON', 'TLRY', 'CGC', 'ACBFF', 'CELG', 'AMD']
+    stocks = ['CRON', 'TLRY', 'CLDR', 'ACBFF', 'CELG', 'AMD', 'SQ', 'MJ']
     start="2015-01-01"
     # start = "2018-7-20"
-    end="2018-9-20"
+    end="2018-9-21"
     # for stock in stocks:
     #     graphData(stock, start, end)
-    graphData(stocks[5], start, end)
+    graphData(stocks[2], start, end)
