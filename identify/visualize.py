@@ -86,16 +86,14 @@ def graphData(name, start, end):
     volume = stock['Volume']
     rsi = rsiFunc(closep)
 
-    # if rsi[-1] < 30:
+    # # if rsi[-1] < 30:
     x = 0
     y = len(date)
     newAr = []
     while x < y:
-        appendLine = mdates.date2num(date[x]),openp[x],closep[x],highp[x],lowp[x],volume[x]
+        appendLine = mdates.date2num(date[x]),openp[x],highp[x],lowp[x], closep[x]
         newAr.append(appendLine)
         x+=1
-
-
 
     rsiCol = 'purple'
     posCol = 'green'
