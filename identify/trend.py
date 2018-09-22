@@ -15,7 +15,7 @@ class stocktrend():
 		 self.start = start_date
 		 self.end = end_date
 		 self.graph = draw_graph
-		 self.stock = data.DataReader(stock_name, 'yahoo', start, end)
+		 self.stock = data.DataReader(stock_name, 'yahoo', start_date, end_date)
 
 	# Basic Historical Plots and Basic Statistics
 	def plot_stock(self, stats=[], series = [], serieslabels = [], xlabel="Date", ylabel="Price"):
@@ -123,17 +123,23 @@ class stocktrend():
 			self.plot_stock(stats=['Fluctuation'], ylabel="Deviation From Average")
 			
 
-		# return status
+		# return short_rolling_stock.std(ddof=0)
+
+	#How wildy stock prices fluctuate (look at daily changes)
+	def get_volatility(self):
+		return
+
 
 
 
 if __name__ == "__main__":
-	start="2015-01-01"
+	start="2018-08-01"
 	end="2018-9-20"
-	tickers = ['CRON', 'AMD', 'CLDR']
+	tickers = ['CRON', 'ECOM', 'CLDR', 'HMI']
 
-	stock = stocktrend(tickers[1], start, end, draw_graph = True)
-	stock.fluctuation()
+	stock = stocktrend(tickers[3], start, end, draw_graph = True)
+	volatility = stock.fluctuation()
+	print(volatility)
 	stock.daily_change()
 	stock.get_rsi()
 
