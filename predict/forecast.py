@@ -638,30 +638,6 @@ class stocktool():
             plt.legend(loc = 2, prop={'size': 10});
             plt.grid(alpha=0.2); 
             plt.show()
-        
-    def retrieve_google_trends(self, search, date_range):
-        
-        # Set up the trend fetching object
-        pytrends = TrendReq(hl='en-US', tz=360)
-        kw_list = [search]
-
-        try:
-        
-            # Create the search object
-            pytrends.build_payload(kw_list, cat=0, timeframe=date_range[0], geo='', gprop='news')
-            
-            # Retrieve the interest over time
-            trends = pytrends.interest_over_time()
-
-            related_queries = pytrends.related_queries()
-
-        except Exception as e:
-            print('\nGoogle Search Trend retrieval failed.')
-            print(e)
-            return
-        
-        return trends, related_queries
-        
     
         
     # Predict the future price for a given range of days
