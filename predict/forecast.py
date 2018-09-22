@@ -1,6 +1,6 @@
 # Quandl for financial analysis, pandas and numpy for data manipulation
 # fbprophet for additive models, #pytrends for Google trend data
-import quandl
+# import quandl
 import pandas as pd
 import numpy as np
 import fbprophet
@@ -662,125 +662,7 @@ class stocktool():
         
         return trends, related_queries
         
-    def changepoint_date_analysis(self, search=None):
-        self.reset_plot()
-
-        model = self.create_model()
-        
-        # Use past self.training_years years of data
-        train = self.stock[self.stock['Date'] > (self.max_date - pd.DateOffset(years = self.training_years)).date()]
-        model.fit(train)
-        
-        # Predictions of the training data (no future periods)
-        future = model.make_future_dataframe(periods=0, freq='D')
-        future = model.predict(future)
     
-        train = pd.merge(train, future[['ds', 'yhat']], on = 'ds', how = 'inner')
-        
-        changepoints = model.changepoints
-        train = train.reset_index(drop=True)
-        
-        # Create dataframe of only changepoints
-        change_indices = []
-        for changepoint in (changepoints):
-            change_indices.append(train[train['ds'] == changepoint.date()].index[0])
-        
-        c_data = train.ix[change_indices, :]
-        deltas = model.params['delta'][0]
-        
-        c_data['delta'] = deltas
-        c_data['abs_delta'] = abs(c_data['delta'])
-        
-        # Sort the values by maximum change
-        c_data = c_data.sort_values(by='abs_delta', ascending=False)
-
-        # Limit to 10 largest changepoints
-        c_data = c_data[:10]
-
-        # Separate into negative and positive changepoints
-        cpos_data = c_data[c_data['delta'] > 0]
-        cneg_data = c_data[c_data['delta'] < 0]
-
-        # Changepoints and data
-        if not search:
-        
-            print('\nChangepoints sorted by slope rate of change (2nd derivative):\n')
-            print(c_data.ix[:, ['Date', 'Adj. Close', 'delta']][:5])
-
-            # Line plot showing actual values, estimated values, and changepoints
-            self.reset_plot()
-            
-            # Set up line plot 
-            plt.plot(train['ds'], train['y'], 'ko', ms = 4, label = 'Stock Price')
-            plt.plot(future['ds'], future['yhat'], color = 'navy', linewidth = 2.0, label = 'Modeled')
-            
-            # Changepoints as vertical lines
-            plt.vlines(cpos_data['ds'].dt.to_pydatetime(), ymin = min(train['y']), ymax = max(train['y']), 
-                       linestyles='dashed', color = 'r', 
-                       linewidth= 1.2, label='Negative Changepoints')
-
-            plt.vlines(cneg_data['ds'].dt.to_pydatetime(), ymin = min(train['y']), ymax = max(train['y']), 
-                       linestyles='dashed', color = 'darkgreen', 
-                       linewidth= 1.2, label='Positive Changepoints')
-
-            plt.legend(prop={'size':10});
-            plt.xlabel('Date'); plt.ylabel('Price ($)'); plt.title('Stock Price with Changepoints')
-            plt.show()
-        
-        # Search for search term in google news
-        # Show related queries, rising related queries
-        # Graph changepoints, search frequency, stock price
-        if search:
-            date_range = ['%s %s' % (str(min(train['Date']).date()), str(max(train['Date']).date()))]
-
-            # Get the Google Trends for specified terms and join to training dataframe
-            trends, related_queries = self.retrieve_google_trends(search, date_range)
-
-            if (trends is None)  or (related_queries is None):
-                print('No search trends found for %s' % search)
-                return
-
-            print('\n Top Related Queries: \n')
-            print(related_queries[search]['top'].head())
-
-            print('\n Rising Related Queries: \n')
-            print(related_queries[search]['rising'].head())
-
-            # Upsample the data for joining with training data
-            trends = trends.resample('D')
-
-            trends = trends.reset_index(level=0)
-            trends = trends.rename(columns={'date': 'ds', search: 'freq'})
-
-            # Interpolate the frequency
-            trends['freq'] = trends['freq'].interpolate()
-
-            # Merge with the training data
-            train = pd.merge(train, trends, on = 'ds', how = 'inner')
-
-            # Normalize values
-            train['y_norm'] = train['y'] / max(train['y'])
-            train['freq_norm'] = train['freq'] / max(train['freq'])
-            
-            self.reset_plot()
-
-            # Plot the normalized stock price and normalize search frequency
-            plt.plot(train['ds'], train['y_norm'], 'k-', label = 'Stock Price')
-            plt.plot(train['ds'], train['freq_norm'], color='goldenrod', label = 'Search Frequency')
-
-            # Changepoints as vertical lines
-            plt.vlines(cpos_data['ds'].dt.to_pydatetime(), ymin = 0, ymax = 1, 
-                       linestyles='dashed', color = 'r', 
-                       linewidth= 1.2, label='Negative Changepoints')
-
-            plt.vlines(cneg_data['ds'].dt.to_pydatetime(), ymin = 0, ymax = 1, 
-                       linestyles='dashed', color = 'darkgreen', 
-                       linewidth= 1.2, label='Positive Changepoints')
-
-            # Plot formatting
-            plt.legend(prop={'size': 10})
-            plt.xlabel('Date'); plt.ylabel('Normalized Values'); plt.title('%s Stock Price and Search Frequency for %s' % (self.symbol, search))
-            plt.show()
         
     # Predict the future price for a given range of days
     def predict_future(self, days=30):
@@ -854,70 +736,6 @@ class stocktool():
         plt.show()
         return future
         
-    def changepoint_prior_validation(self, start_date=None, end_date=None,changepoint_priors = [0.001, 0.05, 0.1, 0.2]):
-
-
-        # Default start date is two years before end of data
-        # Default end date is one year before end of data
-        if start_date is None:
-            start_date = self.max_date - pd.DateOffset(years=2)
-        if end_date is None:
-            end_date = self.max_date - pd.DateOffset(years=1)
-            
-        # Convert to pandas datetime for indexing dataframe
-        start_date = pd.to_datetime(start_date)
-        end_date = pd.to_datetime(end_date)
-        
-        start_date, end_date = self.handle_dates(start_date, end_date)
-                               
-        # Select self.training_years number of years
-        train = self.stock[(self.stock['Date'] > (start_date - pd.DateOffset(years=self.training_years)).date()) & 
-        (self.stock['Date'] < start_date.date())]
-        
-        # Testing data is specified by range
-        test = self.stock[(self.stock['Date'] >= start_date.date()) & (self.stock['Date'] <= end_date.date())]
-
-        eval_days = (max(test['Date']).date() - min(test['Date']).date()).days
-        
-        results = pd.DataFrame(0, index = list(range(len(changepoint_priors))), 
-            columns = ['cps', 'train_err', 'train_range', 'test_err', 'test_range'])
-
-        print('\nValidation Range {} to {}.\n'.format(min(test['Date']).date(),
-            max(test['Date']).date()))
-            
-        
-        # Iterate through all the changepoints and make models
-        for i, prior in enumerate(changepoint_priors):
-            results.ix[i, 'cps'] = prior
-            
-            # Select the changepoint
-            self.changepoint_prior_scale = prior
-            
-            # Create and train a model with the specified cps
-            model = self.create_model()
-            model.fit(train)
-            future = model.make_future_dataframe(periods=eval_days, freq='D')
-                
-            future = model.predict(future)
-            
-            # Training results and metrics
-            train_results = pd.merge(train, future[['ds', 'yhat', 'yhat_upper', 'yhat_lower']], on = 'ds', how = 'inner')
-            avg_train_error = np.mean(abs(train_results['y'] - train_results['yhat']))
-            avg_train_uncertainty = np.mean(abs(train_results['yhat_upper'] - train_results['yhat_lower']))
-            
-            results.ix[i, 'train_err'] = avg_train_error
-            results.ix[i, 'train_range'] = avg_train_uncertainty
-            
-            # Testing results and metrics
-            test_results = pd.merge(test, future[['ds', 'yhat', 'yhat_upper', 'yhat_lower']], on = 'ds', how = 'inner')
-            avg_test_error = np.mean(abs(test_results['y'] - test_results['yhat']))
-            avg_test_uncertainty = np.mean(abs(test_results['yhat_upper'] - test_results['yhat_lower']))
-            
-            results.ix[i, 'test_err'] = avg_test_error
-            results.ix[i, 'test_range'] = avg_test_uncertainty
-
-        print(results)
-
 
         
         # Plot of training and testing average errors
