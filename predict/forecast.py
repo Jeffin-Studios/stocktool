@@ -645,42 +645,29 @@ class stocktool():
         
         # Use past self.training_years years for training
         train = self.stock[self.stock['Date'] > (max(self.stock['Date']) - pd.DateOffset(years=self.training_years)).date()]
-        
         model = self.create_model()
-        
         model.fit(train)
-        
         # Future dataframe with specified number of days to predict
         future = model.make_future_dataframe(periods=days, freq='D')
         future = model.predict(future)
-        
         # Only concerned with future dates
         future = future[future['ds'] >= max(self.stock['Date']).date()]
-        
         # Remove the weekends
         future = self.remove_weekends(future)
-        
         # Calculate whether increase or not
         future['diff'] = future['yhat'].diff()
-    
         future = future.dropna()
-
         # Find the prediction direction and create separate dataframes
         future['direction'] = (future['diff'] > 0) * 1
-        
         # Rename the columns for presentation
         future = future.rename(columns={'ds': 'Date', 'yhat': 'estimate', 'diff': 'change', 
                                         'yhat_upper': 'upper', 'yhat_lower': 'lower'})
-        
         future_increase = future[future['direction'] == 1]
         future_decrease = future[future['direction'] == 0]
-
         print('\nPredicted Increase: \n')
         print(future_increase[['Date', 'estimate', 'change', 'upper', 'lower']])
-        
         print('\nPredicted Decrease: \n')
         print(future_decrease[['Date', 'estimate', 'change', 'upper', 'lower']])
-                
         
         self.reset_plot()
         
