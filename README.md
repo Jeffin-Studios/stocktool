@@ -1,3 +1,17 @@
+
+Sentiment Analysis Plan
+=======================
+List of Stocks
+List of Months
+List of Years
+Iterate through loops and scrape news articles 
+verify date of news article
+analyze stock trend with stocktool
+
+
+
+
+
 Identify Interesting Stocks
 ===========================
 1. Iterate through database of stocks that match certain parameters (price, market capitalization, industry, etc)
@@ -27,3 +41,11 @@ Factors Beyond Mathemtical Fitting (historical trends)
 3. Industry developments
 4. Politics
 5. News Articles (detect bias with machine learning in separte project, implement here)
+
+
+Sentiment Analysis
+==================
+We can use a web scraper to get news articles (and headlines) for each of the stocks in the S&P 500 over a few years, and for each news article we can label the sentiment by running our stocktool scripts to see how the stock changed in the days around the date of publication. After we successfully label the effect/sentiment of each news article, we can run text classification on that training set to teach an algorithm how to predict it. Run separate classifiers on the actual news article and the news headlines. 
+
+
+

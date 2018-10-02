@@ -727,7 +727,7 @@ class stocktool():
 
 
 if __name__ == "__main__":
-    name = 'AMD'
+    name = 'AAPL'
     start="2015-01-01"
     # start="2018-09-01"
     end="2018-9-20"
@@ -738,5 +738,5 @@ if __name__ == "__main__":
     model, model_data = stock.create_prophet_model(days=30)
     future =stock.predict_future(days=30)
 
-    # stock.evaluate_prediction()
+    stock.evaluate_prediction()
 
