@@ -1,6 +1,6 @@
 
-Sentiment Analysis Plan
-=======================
+How To Create Training Set for Sentiment Classification
+========================================================
 List of Stocks
 List of Months
 List of Years
