@@ -46,6 +46,7 @@ def fetch(query):
 	file.close() 
 	return results
 
+# Make date part of the query string
 def fetch2(query):
 	results = []
 	file = open('test.txt','w') 
@@ -62,6 +63,15 @@ def fetch2(query):
 
 def verify(url):
 	# Determines if source is credible and recent. Discards those that do not meet criteria
+	return
+
+# Get date from query string, look at how stock changed around date of publication
+def label(query):
+	# Determines if source is credible and recent. Discards those that do not meet criteria
+	return
+
+# Loop that iterates through past dates. For each date, fetches news article and labels it
+def main():
 	return
 
 if __name__ == '__main__':
